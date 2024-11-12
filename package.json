@@ -1,0 +1,27 @@
+{
+  "name": "actividad-8",
+  "version": "1.0.0",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "start index.js",
+    "dev": "devstart index.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Nacser/blogback.git"
+  },
+  "author": "Rodrigo Fraile",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/Nacser/blogback/issues"
+  },
+  "homepage": "https://github.com/Nacser/blogback#readme",
+  "description": "",
+  "dependencies": {
+    "dotenv": "^16.4.5",
+    "express": "^4.21.1",
+    "mysql": "^2.18.1",
+    "nodemon": "^3.1.7"
+  }
+}
