@@ -23,39 +23,49 @@ const getPostById = async (req, res) => {
     });
 };
 
-const createPost = async (req, res) => {
-    const post = req.body;
-    db.query('INSERT INTO posts SET ?', post, (error, results) => {
-        if (error) {
-            res.status(500).json({ error: 'Error creating post' });
-        } else {
-            res.status(201).json(results);
-        }
+const createPost = (req, res) => {
+    const { titulo, descripcion, fecha_creacion, categoria, autor_id } = req.body;
+    const query = 'INSERT INTO posts (titulo, descripcion, fecha_creacion, categoria, autor_id) VALUES (?, ?, ?, ?, ?)';
+    
+    db.query(query, [titulo, descripcion, fecha_creacion, categoria, autor_id], (error, results) => {
+      if (error) {
+        res.status(500).json({ error: error.message });
+      } else {
+        res.status(201).json({ message: 'Successfully created post', postId: results.insertId });
+      }
     });
-};
+  };
 
-const updatePost = async (req, res) => {
+const updatePost = (req, res) => {
     const postId = req.params.id;
-    const post = req.body;
-    db.query('UPDATE posts SET ? WHERE id = ?', [post, postId], (error, results) => {
-        if (error) {
-            res.status(500).json({ error: 'Error updating post' });
-        } else {
-            res.status(200).json(results);
-        }
+    const { titulo, descripcion, fecha_creacion, categoria, autor_id } = req.body;
+    const query = 'UPDATE posts SET titulo = ?, descripcion = ?, fecha_creacion = ?, categoria = ?, autor_id = ? WHERE id = ?';
+  
+    db.query(query, [titulo, descripcion, fecha_creacion, categoria, autor_id, postId], (error, results) => {
+      if (error) {
+        res.status(500).json({ error: error.message });
+      } else {
+        res.status(200).json({ message: 'Successfully updated post' });
+      }
     });
-};
+  };
+  
 
-const deletePost = async (req, res) => {
+  const deletePost = (req, res) => {
     const postId = req.params.id;
-    db.query('DELETE FROM posts WHERE id = ?', [postId], (error, results) => {
-        if (error) {
-            res.status(500).json({ error: 'Error deleting post' });
-        } else {
-            res.status(200).json(results);
-        }
+    const query = 'DELETE FROM posts WHERE id = ?';
+  
+    db.query(query, [postId], (error, results) => {
+      if (error) {
+        res.status(500).json({ error: error.message });
+      } else {
+        res.status(200).json({ message: 'Successfully deleted post' });
+      }
     });
-};
+  };
+  
+
+
 
 module.exports = {
     getAllPosts,
