@@ -1,7 +1,7 @@
 const db = require('../config/db');
 
 const getAllAuthors = async (req, res) => {
-    db.query('SELECT * FROM authors', (error, results) => {
+    db.query('SELECT * FROM author', (error, results) => {
         if (error) {
             res.status(500).json({ error: error.message });
         } else {
@@ -12,7 +12,7 @@ const getAllAuthors = async (req, res) => {
 
 const getAuthorById = async (req, res) => {
     const authorId = req.params.id;
-    db.query('SELECT * FROM authors WHERE id = ?', [authorId], (error, results) => {
+    db.query('SELECT * FROM author WHERE idauthor = ?', [authorId], (error, results) => {
         if (error) {
             res.status(500).json({ error: error.message });
         } else if (results.length === 0) {
@@ -24,14 +24,14 @@ const getAuthorById = async (req, res) => {
 };
 
 const createAuthor = (req, res) => {
-    const { nombre, email, imagen } = req.body;
-    const query = 'INSERT INTO authors (nombre, email, imagen) VALUES (?, ?, ?)';
+    const { name, email, photo } = req.body;
+    const query = 'INSERT INTO author (name, email, photo) VALUES (?, ?, ?)';
   
-    db.query(query, [nombre, email, imagen], (error, results) => {
+    db.query(query, [name, email, photo], (error, results) => {
       if (error) {
         res.status(500).json({ error: error.message });
       } else {
-        res.status(201).json({ message: 'Successfully created author', authorId: results.insertId });
+        res.status(201).json({ message: 'Successfully created author', idauthor: results.insertId });
       }
     });
   };
@@ -39,10 +39,10 @@ const createAuthor = (req, res) => {
 
   const updateAuthor = (req, res) => {
     const authorId = req.params.id;
-    const { nombre, email, imagen } = req.body;
-    const query = 'UPDATE authors SET nombre = ?, email = ?, imagen = ? WHERE id = ?';
+    const { name, email, photo } = req.body;
+    const query = 'UPDATE author SET name = ?, email = ?, photo = ? WHERE idauthor = ?';
   
-    db.query(query, [nombre, email, imagen, authorId], (error, results) => {
+    db.query(query, [name, email, photo, authorId], (error, results) => {
       if (error) {
         res.status(500).json({ error: error.message });
       } else {
@@ -54,7 +54,7 @@ const createAuthor = (req, res) => {
 
   const deleteAuthor = (req, res) => {
     const authorId = req.params.id;
-    const query = 'DELETE FROM authors WHERE id = ?';
+    const query = 'DELETE FROM author WHERE idauthor = ?';
   
     db.query(query, [authorId], (error, results) => {
       if (error) {

@@ -1,9 +1,22 @@
 const db = require('../config/db');
 
 const getAllPosts = async (req, res) => {
-    db.query('SELECT * FROM posts', (error, results) => {
+   
+    const query = `SELECT 
+        post.idpost, 
+        post.title, 
+        post.description, 
+        post.date, 
+        post.category, 
+        author.idauthor AS author_id, 
+        author.name, 
+        author.email, 
+        author.photo 
+        FROM post JOIN author ON post.author_idauthor = author.idauthor`;
+
+    db.query(query, (error, results) => {
         if (error) {
-            res.status(500).json({ error: 'Error obtaining posts' });
+            res.status(500).json({ error: error.message });
         } else {
             res.status(200).json(results);
         }
@@ -12,9 +25,21 @@ const getAllPosts = async (req, res) => {
 
 const getPostById = async (req, res) => {
     const postId = req.params.id;
-    db.query('SELECT * FROM posts WHERE id = ?', [postId], (error, results) => {
+    const query = `SELECT 
+        post.idpost, 
+        post.title, 
+        post.description, 
+        post.date, 
+        post.category, 
+        author.idauthor AS author_id, 
+        author.name, 
+        author.email, 
+        author.photo 
+        FROM post JOIN author ON post.author_idauthor = author.idauthor WHERE post.idpost = ?`;
+
+    db.query(query, [postId], (error, results) => {
         if (error) {
-            res.status(500).json({ error: 'Error obtaining post' });
+            res.status(500).json({ error: error.message });
         } else if (results.length === 0) {
             res.status(404).json({ error: 'Post not found' });
         } else {
@@ -24,24 +49,24 @@ const getPostById = async (req, res) => {
 };
 
 const createPost = (req, res) => {
-    const { titulo, descripcion, fecha_creacion, categoria, autor_id } = req.body;
-    const query = 'INSERT INTO posts (titulo, descripcion, fecha_creacion, categoria, autor_id) VALUES (?, ?, ?, ?, ?)';
+    const { title, description, date, category, author_idauthor } = req.body;
+    const query = 'INSERT INTO post (title, description, date, category, author_idauthor) VALUES (?, ?, ?, ?, ?)';
     
-    db.query(query, [titulo, descripcion, fecha_creacion, categoria, autor_id], (error, results) => {
+    db.query(query, [title, description, date, category, author_idauthor], (error, results) => {
       if (error) {
         res.status(500).json({ error: error.message });
       } else {
-        res.status(201).json({ message: 'Successfully created post', postId: results.insertId });
+        res.status(201).json({ message: 'Successfully created post', idpost: results.insertId });
       }
     });
   };
 
 const updatePost = (req, res) => {
     const postId = req.params.id;
-    const { titulo, descripcion, fecha_creacion, categoria, autor_id } = req.body;
-    const query = 'UPDATE posts SET titulo = ?, descripcion = ?, fecha_creacion = ?, categoria = ?, autor_id = ? WHERE id = ?';
+    const { title, description, date, category, author_idauthor } = req.body;
+    const query = 'UPDATE post SET title = ?, description = ?, date = ?, category = ?, author_idauthor = ? WHERE idPost = ?';
   
-    db.query(query, [titulo, descripcion, fecha_creacion, categoria, autor_id, postId], (error, results) => {
+    db.query(query, [title, description, date, category, author_idauthor, postId], (error, results) => {
       if (error) {
         res.status(500).json({ error: error.message });
       } else {
@@ -53,7 +78,7 @@ const updatePost = (req, res) => {
 
   const deletePost = (req, res) => {
     const postId = req.params.id;
-    const query = 'DELETE FROM posts WHERE id = ?';
+    const query = 'DELETE FROM post WHERE idpost = ?';
   
     db.query(query, [postId], (error, results) => {
       if (error) {
