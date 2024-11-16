@@ -49,26 +49,36 @@ const getPostById = (postId) => {
 };
 
 const getPostsByAuthor = (authorId) => {
-    const query = `
-        SELECT 
-            post.idpost, 
-            post.title, 
-            post.description, 
-            post.date, 
-            post.category, 
-            author.idauthor AS author_id, 
-            author.name, 
-            author.email, 
-            author.photo 
-        FROM post JOIN author ON post.author_idauthor = author.idauthor WHERE author.idauthor = ?`;
+    console.log('Author ID received in model:', authorId); // Depura el ID recibido
 
+    const checkAuthorQuery = 'SELECT * FROM author WHERE idauthor = ?';
     return new Promise((resolve, reject) => {
-        db.query(query, [authorId], (error, results) => {
-            if (error) {
-                reject(error);
-            } else {
-                resolve(results);
+        db.query(checkAuthorQuery, [authorId], (error, authorResults) => {
+            if (error) return reject(error);
+
+            console.log('Query Result:', authorResults); // Depura los resultados
+            if (authorResults.length === 0) {
+                return resolve({ authorExists: false, posts: [] });
             }
+
+            const getPostsQuery = `
+                SELECT 
+                    post.idpost, 
+                    post.title, 
+                    post.description, 
+                    post.date, 
+                    post.category, 
+                    author.idauthor AS author_id, 
+                    author.name, 
+                    author.email, 
+                    author.photo 
+                FROM post 
+                JOIN author ON post.author_idauthor = author.idauthor 
+                WHERE author.idauthor = ?`;
+            db.query(getPostsQuery, [authorId], (error, postsResults) => {
+                if (error) return reject(error);
+                resolve({ authorExists: true, posts: postsResults });
+            });
         });
     });
 };

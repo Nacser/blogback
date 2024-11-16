@@ -28,13 +28,21 @@ const getPostsByAuthor = async (req, res) => {
     const authorId = req.params.id;
 
     try {
-        const posts = await Post.getPostsByAuthor(authorId);
+        const { authorExists, posts } = await Post.getPostsByAuthor(authorId);
+
+        if (!authorExists) {
+            return res.status(404).json({ message: 'Author not found' });
+        }
+
+        if (posts.length === 0) {
+            return res.status(404).json({ message: 'No posts found for this author' });
+        }
+
         res.status(200).json(posts);
     } catch (error) {
         res.status(500).json({ error: error.message });
     }
 };
-
 
 const createPost = async (req, res) => {
   const { title, description, date, category, author_idauthor } = req.body;
