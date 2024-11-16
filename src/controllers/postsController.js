@@ -1,93 +1,72 @@
-const db = require('../config/db');
+const Post = require('../models/postsModels');
+
 
 const getAllPosts = async (req, res) => {
-   
-    const query = `SELECT 
-        post.idpost, 
-        post.title, 
-        post.description, 
-        post.date, 
-        post.category, 
-        author.idauthor AS author_id, 
-        author.name, 
-        author.email, 
-        author.photo 
-        FROM post JOIN author ON post.author_idauthor = author.idauthor`;
-
-    db.query(query, (error, results) => {
-        if (error) {
-            res.status(500).json({ error: error.message });
-        } else {
-            res.status(200).json(results);
-        }
-    });
+  try {
+      const posts = await Post.getAllPosts();
+      res.status(200).json(posts);
+  } catch (error) {
+      res.status(500).json({ error: error.message });
+  }
 };
 
 const getPostById = async (req, res) => {
-    const postId = req.params.id;
-    const query = `SELECT 
-        post.idpost, 
-        post.title, 
-        post.description, 
-        post.date, 
-        post.category, 
-        author.idauthor AS author_id, 
-        author.name, 
-        author.email, 
-        author.photo 
-        FROM post JOIN author ON post.author_idauthor = author.idauthor WHERE post.idpost = ?`;
-
-    db.query(query, [postId], (error, results) => {
-        if (error) {
-            res.status(500).json({ error: error.message });
-        } else if (results.length === 0) {
-            res.status(404).json({ error: 'Post not found' });
-        } else {
-            res.status(200).json(results[0]);
-        }
-    });
+  const postId = req.params.id;
+  try {
+      const post = await Post.getPostById(postId);
+      if (!post) {
+          res.status(404).json({ error: 'Post not found' });
+      } else {
+          res.status(200).json(post);
+      }
+  } catch (error) {
+      res.status(500).json({ error: error.message });
+  }
 };
 
-const createPost = (req, res) => {
-    const { title, description, date, category, author_idauthor } = req.body;
-    const query = 'INSERT INTO post (title, description, date, category, author_idauthor) VALUES (?, ?, ?, ?, ?)';
-    
-    db.query(query, [title, description, date, category, author_idauthor], (error, results) => {
-      if (error) {
-        res.status(500).json({ error: error.message });
-      } else {
-        res.status(201).json({ message: 'Successfully created post', idpost: results.insertId });
-      }
-    });
-  };
+const getPostsByAuthor = async (req, res) => {
+    const authorId = req.params.id;
 
-const updatePost = (req, res) => {
-    const postId = req.params.id;
-    const { title, description, date, category, author_idauthor } = req.body;
-    const query = 'UPDATE post SET title = ?, description = ?, date = ?, category = ?, author_idauthor = ? WHERE idPost = ?';
-  
-    db.query(query, [title, description, date, category, author_idauthor, postId], (error, results) => {
-      if (error) {
+    try {
+        const posts = await Post.getPostsByAuthor(authorId);
+        res.status(200).json(posts);
+    } catch (error) {
         res.status(500).json({ error: error.message });
-      } else {
-        res.status(200).json({ message: 'Successfully updated post' });
-      }
-    });
-  };
+    }
+};
+
+
+const createPost = async (req, res) => {
+  const { title, description, date, category, author_idauthor } = req.body;
+  try {
+      const postId = await Post.createPost(title, description, date, category, author_idauthor);
+      res.status(201).json({ message: 'Successfully created post', idpost: postId });
+  } catch (error) {
+      res.status(500).json({ error: error.message });
+  }
+}
+
+const updatePost = async (req, res) => {
+  const postId = req.params.id;
+  const { title, description, date, category, author_idauthor } = req.body;
+  try {
+      await Post.updatePost(postId, title, description, date, category, author_idauthor);
+      res.status(200).json({ message: 'Successfully updated post' });
+  } catch (error) {
+      res.status(500).json({ error: error.message });
+  }
+};
   
 
-  const deletePost = (req, res) => {
-    const postId = req.params.id;
-    const query = 'DELETE FROM post WHERE idpost = ?';
-  
-    db.query(query, [postId], (error, results) => {
-      if (error) {
-        res.status(500).json({ error: error.message });
-      } else {
-        res.status(200).json({ message: 'Successfully deleted post' });
-      }
-    });
-  };
+const deletePost = async (req, res) => {
+  const postId = req.params.id;
+  try {
+      await Post.deletePost(postId);
+      res.status(200).json({ message: 'Successfully deleted post' });
+  } catch (error) {
+      res.status(500).json({ error: error.message });
+  }
+};
   
 
 
@@ -95,6 +74,7 @@ const updatePost = (req, res) => {
 module.exports = {
     getAllPosts,
     getPostById,
+    getPostsByAuthor,
     createPost,
     updatePost,
     deletePost,
